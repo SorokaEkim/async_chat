@@ -18,16 +18,25 @@ class Server(Socket):
 
     async def listen_socket(self, listened_socket: object=None):
         while True:
-            data = self.main_loop.sock_recv(listened_socket, 2048)
-            print(f"User sent {data.decode('utf-8')}")
-            await self.send_data(data)
+            try:
+                data = await self.main_loop.sock_recv(listened_socket, 2048)
+                print(data)
+                await self.send_data(data)
+            except ConnectionResetError:
+                self.clients.remove(listened_socket)
+                print("Client is gone...")
+                return
 
     async def accept_sockets(self):
         while True:
             client_socket, address = await self.main_loop.sock_accept(self.socket)
-            self.clients.append(client_socket)
-
-            print(f"{address[1]} connected")
+            if len(self.clients) <= 1:
+                self.clients.append(client_socket)
+                print(f"{address[1]} connected")
+            else:
+                print("Пошел нахуй!")
+                client_socket.close()
+            
 
             self.main_loop.create_task(self.listen_socket(client_socket))
 
