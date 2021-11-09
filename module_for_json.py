@@ -12,3 +12,4 @@ def write_json_file(path, data):
     """Запись в json"""
     with open(path, 'w', encoding="utf-8") as json_file:
         json.dump(data, json_file, ensure_ascii=False)
+        
